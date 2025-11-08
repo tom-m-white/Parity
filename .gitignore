@@ -1,0 +1,64 @@
+# --- Python cache / build ---
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# --- Virtual environments ---
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# --- VS Code / IDE configs ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- OS files ---
+.DS_Store
+Thumbs.db
+
+# --- Logs and temp files ---
+*.log
+*.tmp
+*.bak
+*.old
+
+# --- Environment variables ---
+.env
+*.env
+
+# --- Jupyter / Streamlit ---
+.ipynb_checkpoints/
+.streamlit/
+.streamlit/secrets.toml
+
+# --- Cache directories ---
+.cache/
+.pytest_cache/
+__pypackages__/
+.mypy_cache/
+coverage.xml
+htmlcov/
+
+# --- Output or data files ---
+*.csv
+*.json
+*.db
+*.sqlite
+*.pkl
+*.gz
+
+# --- Misc ---
+*.zip
+*.tar
+*.tar.gz
+*.rar
