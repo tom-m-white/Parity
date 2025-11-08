@@ -1,5 +1,6 @@
 import requests, random, time
 import random
+from bs4 import BeautifulSoup
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -33,8 +34,11 @@ def human_get_selenium():
     driver.get(f"https://globalesearch.com/search/shoes?sortBy=BestMatch&searchInDescription=false&se=0")
     html = driver.page_source  # full rendered HTML
 
+    soup = BeautifulSoup(html, "html.parser")
+    pretty_html = soup.prettify()
+
     with open("ebay.html", "w", encoding="utf-8") as f:
-        f.write(html)
+        f.write(pretty_html)
 
     driver.quit()
 
@@ -55,22 +59,26 @@ def human_get_selenium_wait():
     options.add_argument("--disable-popup-blocking")
     #options.add_argument("--enable-javascript")
     prefs = {"profile.default_content_setting_values.notifications": 2}
-    options.add_argument("--headless")
+    #options.add_argument("--headless")
     options.add_experimental_option("prefs", prefs)
     driver = webdriver.Chrome(options=options)
 
-    options.add_argument("--headless")
     options.add_argument("--disable-gpu")
 
     encoded_query = "bike"
     driver.get(f"https://globalesearch.com/search/shoes?sortBy=BestMatch&searchInDescription=false&se=0")
 
-    WebDriverWait(driver, 3)
+    time.sleep(5)
 
     html = driver.page_source  # full rendered HTML
 
+    soup = BeautifulSoup(html, "html.parser")
+    pretty_html = soup.prettify()
+
     with open("ebay.html", "w", encoding="utf-8") as f:
-        f.write(html)
+        f.write(pretty_html)
+
+    input("Press Enter to close browser...")
 
     driver.quit()
 
@@ -96,8 +104,10 @@ def human_get_requests(url, session=None, headers=None, min_delay=1.5, max_delay
 
 # response = human_get_requests(url)
 # html = response.text
+# soup = BeautifulSoup(html, "html.parser")
+# pretty_html = soup.prettify()
 # with open("ebay.html", "w", encoding="utf-8") as f:
-#     f.write(html)
+#     f.write(pretty_html)
 
 # human_get_selenium()
 
