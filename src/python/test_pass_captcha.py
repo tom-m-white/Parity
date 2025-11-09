@@ -37,7 +37,7 @@ def human_get_selenium():
     soup = BeautifulSoup(html, "html.parser")
     pretty_html = soup.prettify()
 
-    with open("ebay.html", "w", encoding="utf-8") as f:
+    with open("../../output/pre_parsed_html/ebay.html", "w", encoding="utf-8") as f:
         f.write(pretty_html)
 
     driver.quit()
@@ -75,7 +75,7 @@ def human_get_selenium_wait():
     soup = BeautifulSoup(html, "html.parser")
     pretty_html = soup.prettify()
 
-    with open("ebay.html", "w", encoding="utf-8") as f:
+    with open("../../output/pre_parsed_html/ebay.html", "w", encoding="utf-8") as f:
         f.write(pretty_html)
 
     input("Press Enter to close browser...")
@@ -106,7 +106,7 @@ def human_get_requests(url, session=None, headers=None, min_delay=1.5, max_delay
 # html = response.text
 # soup = BeautifulSoup(html, "html.parser")
 # pretty_html = soup.prettify()
-# with open("ebay.html", "w", encoding="utf-8") as f:
+# with open("../../output/pre_parsed_html/ebay.html", "w", encoding="utf-8") as f:
 #     f.write(pretty_html)
 
 # human_get_selenium()
