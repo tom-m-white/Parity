@@ -7,7 +7,7 @@ from io import BytesIO
 from lxml import html
 import re
 
-from test_pass_captcha import human_get_selenium
+from scraper import human_get_selenium
 
 class ParityApp(ctk.CTk):
     def __init__(self):
