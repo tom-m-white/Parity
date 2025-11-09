@@ -1,7 +1,7 @@
 # Parity
 
 **Parity** is a web app built to streamline price comparison across online marketplaces like eBay and Amazon.  
-It automates search queries, scrapes listings in real time using Selenium and `lxml`, and displays structured product data (including title, price, and image links) for quick comparison
+It automates search queries, scrapes listings in real time using Selenium and `lxml`, and displays structured product data (including title, price, images, and the link) for quick comparison
 
 > 🏆 Winner of **Best Undergraduate Project - Gonzaga Hackathon 2025**
 
