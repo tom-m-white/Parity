@@ -41,8 +41,8 @@ cd parity`
 ### 2. Set up a virtual environment
 `
 python3 -m venv venv
-source venv/bin/activate  # or `venv\Scripts\activate` on Windows
-`
+source venv/bin/activate`  # or `venv\Scripts\activate` on Windows
+
 ### 3. Install dependencies
 `pip install -r requirements.txt`
 
