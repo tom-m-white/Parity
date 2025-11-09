@@ -5,7 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 
-def human_get_selenium(query, website, wait=False, headless = True):
+def human_get_selenium(query, website, wait=False, headless=False):
     options = Options()
     options.add_argument(
         "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.105 Mobile Safari/537.36"
@@ -23,7 +23,8 @@ def human_get_selenium(query, website, wait=False, headless = True):
     #options.add_argument("--enable-javascript")
     prefs = {"profile.default_content_setting_values.notifications": 2}
     options.add_experimental_option("prefs", prefs)
-    #options.add_argument("--headless")
+    if headless:
+        options.add_argument("--headless")
     # options.add_argument("--disable-gpu")
     driver = webdriver.Chrome(options=options)
     driver.set_window_size(500,1000)

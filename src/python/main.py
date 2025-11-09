@@ -115,7 +115,7 @@ class ParityApp(ctk.CTk):
         #### EBAY ####
         if self.search_ebay.get():
             sources_to_search.append("ebay")
-            human_get_selenium(query_text, "ebay", False)
+            human_get_selenium(query_text, "ebay", headless=True)
             with open("../../output/pre_parsed_html/ebay.html", "r", encoding="utf-8") as f:
                 doc = html.fromstring(f.read())
 
@@ -215,7 +215,7 @@ class ParityApp(ctk.CTk):
 
         if self.search_target.get():
             sources_to_search.append("target")
-            human_get_selenium(query_text, "target", False)
+            human_get_selenium(query_text, "target", headless=True)
             # Loads th e HTML file
             with open("../../output/pre_parsed_html/target.html", "r", encoding="utf-8") as f:
                 doc = html.fromstring(f.read())
