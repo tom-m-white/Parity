@@ -1,13 +1,11 @@
 import requests, random, time
 from bs4 import BeautifulSoup
 
-import gui
-
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 
-def human_get_selenium(query, website, wait=False):
+def human_get_selenium(query, website, wait=False, headless = True):
     options = Options()
     options.add_argument(
         "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.105 Mobile Safari/537.36"
@@ -25,21 +23,22 @@ def human_get_selenium(query, website, wait=False):
     #options.add_argument("--enable-javascript")
     prefs = {"profile.default_content_setting_values.notifications": 2}
     options.add_experimental_option("prefs", prefs)
-    # options.add_argument("--headless")
+    #options.add_argument("--headless")
     # options.add_argument("--disable-gpu")
     driver = webdriver.Chrome(options=options)
+    driver.set_window_size(500,1000)
 
     
     
     if website == "amazon":
         driver.get(f"https://www.amazon.com/s?k={query}")
-        time.sleep(2) # Waiting for website to load
+        time.sleep(3) # Waiting for website to load
     if website == "ebay":
         driver.get(f"https://globalesearch.com/search/{query}") # se=0 means the search will be for Ebay United States
-        time.sleep(5) # Waiting for website to load
+        time.sleep(3) # Waiting for website to load
     if website == "target":
         driver.get(F"https://www.target.com/s?searchTerm={query}")
-        time.sleep(5) # Waiting for website to load
+        time.sleep(3) # Waiting for website to load
     
 
     html = driver.page_source  # full rendered HTML
@@ -49,8 +48,6 @@ def human_get_selenium(query, website, wait=False):
 
     with open(f"../../output/pre_parsed_html/{website}.html", "w", encoding="utf-8") as f:
         f.write(pretty_html)
-
-    input("Press Enter to close browser...")
 
     driver.quit()
 
@@ -84,4 +81,4 @@ def human_get_requests(url, session=None, headers=None, min_delay=1.5, max_delay
 
 # human_get_selenium()
 
-human_get_selenium("Black Nike Shoes", "target", wait=True)
+#human_get_selenium("Black Nike Shoes", "target", wait=True)

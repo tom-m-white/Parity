@@ -38,10 +38,10 @@ for div in product_divs:
             price += "." + fraction[0].strip()
 
     products.append({
-        "name": title,
-        "link": link,
-        "image": img,
-        "price": price
+        "Name": title,
+        "Link": link,
+        "Image": img,
+        "Price": price
     })
 
 print(f"Extracted {len(products)} products")
@@ -52,7 +52,7 @@ for p in products[:10]:  # preview first few
 
 #Write to csv
 with open("amazon.csv", "w", newline="", encoding="utf-8") as f:
-    fieldnames = ["name", "price", "link", "image"]
+    fieldnames = ["Name", "Price", "Link", "Image"]
     writer = csv.DictWriter(f, fieldnames=fieldnames)
 
     writer.writeheader()       # writes: name,price,link,image

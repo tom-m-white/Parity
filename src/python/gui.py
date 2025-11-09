@@ -15,7 +15,7 @@ class ParityApp(ctk.CTk):
 
         #Window setup
         self.title("Parity")
-        self.geometry("900x700")
+        self.geometry("1500x900")
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("blue")
 
@@ -155,10 +155,112 @@ class ParityApp(ctk.CTk):
         if self.search_amazon.get():
             sources_to_search.append("amazon")
             human_get_selenium(query_text, "amazon", False)
+            # Loads th e HTML file
+        with open("../../output/pre_parsed_html/amazon.html", "r", encoding="utf-8") as f:
+            doc = html.fromstring(f.read())
+
+        # this get all product containers under the search results
+        #product_divs = doc.xpath('//*[@id="search"]/div[1]/div[1]/div/span[1]/div[1]')
+
+        product_divs = doc.xpath('//div[@role="listitem" and @data-asin]')
+
+        products = []
+
+        for div in product_divs:
+            # Product link (adding Amazon domain)
+            link = div.xpath('.//h2/parent::a/@href')
+            link = "https://www.amazon.com" + link[0].split("?")[0] if link else None
+
+            # Image link
+            img = div.xpath('.//img[contains(@class,"s-image")]/@src')
+            img = img[0] if img else None
+
+            # Product name
+            title = div.xpath('.//h2/@aria-label')
+            if not title:
+                title = div.xpath('.//h2//text()')
+            title = title[0].strip() if title else None
+
+            # Price (whole + fraction combined)
+            whole = div.xpath('.//span[@class="a-price-whole"]/text()')
+            fraction = div.xpath('.//span[@class="a-price-fraction"]/text()')
+            price = None
+            if whole:
+                price = whole[0].strip().replace(",", "")
+                if fraction:
+                    price += "." + fraction[0].strip()
+
+            products.append({
+                "Name": title,
+                "Link": link,
+                "Image": img,
+                "Price": price
+            })
+
+        print(f"Extracted {len(products)} products")
+        print(type(products))
+        print(type(products[0]))
+        for p in products[:10]:  # preview first few
+            print(p)
+
+        #Write to csv
+        with open("amazon.csv", "w", newline="", encoding="utf-8") as f:
+            fieldnames = ["Name", "Price", "Link", "Image"]
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+
+            writer.writeheader()       # writes: name,price,link,image
+            writer.writerows(products)
+
+        print("Scraping complete")
 
         if self.search_target.get():
             sources_to_search.append("target")
             human_get_selenium(query_text, "target", False)
+            # Loads th e HTML file
+            with open("../../output/pre_parsed_html/target.html", "r", encoding="utf-8") as f:
+                doc = html.fromstring(f.read())
+
+            product_divs = doc.xpath('//div[@data-test="@web/site-top-of-funnel/ProductCardWrapper"]')
+
+            products = []
+            print(len(product_divs))
+
+
+            for div in product_divs:
+                # Product name
+                name = div.xpath('.//a[@data-test="product-title"]/@aria-label')
+                name = name[0].strip() if name else None
+
+                # Product link
+                link = div.xpath('.//a[@data-test="product-title"]/@href')
+                link = "https://www.target.com" + link[0] if link else None
+
+                # Product image
+                image = div.xpath('.//img/@src')
+                image = image[0] if image else None
+
+                # Product price
+                price = div.xpath('.//span[@data-test="current-price"]/span/text()')
+                price = price[0].strip() if price else None
+
+                products.append({
+                    "Name": name,
+                    "Price": price,
+                    "Link": link,
+                    "Image": image
+                })
+
+            print(f"Extracted {len(products)} products.")
+            for p in products[:5]:
+                print(p)
+
+
+            with open("target.csv", "w", newline="", encoding="utf-8") as f:
+                fieldnames = ["Name", "Price", "Link", "Image"]
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(products)
+            
 
         # If no boxes were checked, show a message and stop
         if not sources_to_search:
