@@ -325,7 +325,13 @@ class ParityApp(ctk.CTk):
         price_label.pack(anchor="w", pady=5)
 
         source_name = item_data.get('Source', 'Unknown')
-        source_color = "#3665F3" if source_name == "eBay" else "#FF9900"
+        source_color = (
+            "#3665F3" if source_name == "eBay"
+            else "#FF9900" if source_name == "Amazon"
+            else "#CC0000" if source_name == "Target"
+            else "#000000"  # default (black)
+        )
+
 
         source_label = ctk.CTkLabel(
             details_frame, text=source_name, font=("Segoe UI", 12, "bold"), text_color=source_color
