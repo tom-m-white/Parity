@@ -144,7 +144,7 @@ class ParityApp(ctk.CTk):
                 print(f"Product: {name}\nPrice: {price}\nLink: {link}\nImage: {img}\n{'-'*80}")
 
             #Write to CSv
-            with open("ebay.csv", "w", newline="", encoding="utf-8") as f:
+            with open("../../output/processed_csv/ebay.csv", "w", newline="", encoding="utf-8") as f:
                 writer = csv.writer(f)
                 writer.writerow(["Name", "Price", "Link", "Image"])
                 writer.writerows(data)
@@ -204,7 +204,7 @@ class ParityApp(ctk.CTk):
             print(p)
 
         #Write to csv
-        with open("amazon.csv", "w", newline="", encoding="utf-8") as f:
+        with open("../../output/processed_csv/amazon.csv", "w", newline="", encoding="utf-8") as f:
             fieldnames = ["Name", "Price", "Link", "Image"]
             writer = csv.DictWriter(f, fieldnames=fieldnames)
 
@@ -255,7 +255,7 @@ class ParityApp(ctk.CTk):
                 print(p)
 
 
-            with open("target.csv", "w", newline="", encoding="utf-8") as f:
+            with open("../../output/processed_csv/target.csv", "w", newline="", encoding="utf-8") as f:
                 fieldnames = ["Name", "Price", "Link", "Image"]
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
@@ -272,11 +272,11 @@ class ParityApp(ctk.CTk):
         # Read data from the corresponding CSVs
         all_items = []
         if "ebay" in sources_to_search:
-            all_items.extend(self.read_and_process_csv('ebay.csv', 'eBay', limit=5))
+            all_items.extend(self.read_and_process_csv('../../output/processed_csv/ebay.csv', 'eBay', limit=5))
         if "amazon" in sources_to_search:
-            all_items.extend(self.read_and_process_csv('amazon.csv', 'Amazon', limit=5))
+            all_items.extend(self.read_and_process_csv('../../output/processed_csv/amazon.csv', 'Amazon', limit=5))
         if "target" in sources_to_search:
-            all_items.extend(self.read_and_process_csv('target.csv', 'Target', limit=5))
+            all_items.extend(self.read_and_process_csv('../../output/processed_csv/target.csv', 'Target', limit=5))
 
 
         # Display the final results
