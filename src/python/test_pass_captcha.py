@@ -86,4 +86,4 @@ def human_get_requests(url, session=None, headers=None, min_delay=1.5, max_delay
 
 # human_get_selenium()
 
-human_get_selenium("Black Nike Shoes", "target", wait=True)
+human_get_selenium("Black Nike Shoes", "amazon", wait=True)
