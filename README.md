@@ -14,7 +14,7 @@ Created by Tom White and Xavier Barinaga, Gonzaga University
 - Automated scraping using Selenium with human-like delays to bypass captchas and gather data dynamically  
 - HTML parsing to extract product information from complex DOM structures with `lxml`  
 - Cross-platform search support for multiple e-commerce sites (eBay, Amazon, and more)  
-- Clean data output exported as CSV or JSON files  
+- Clean data output exported as CSV files 
 - Automatic photo and link extraction for each listing  
 - Future goal: unified web UI for real-time price tracking and notifications  
 
