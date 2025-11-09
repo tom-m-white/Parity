@@ -1,25 +1,39 @@
 from lxml import html
 import re
+import csv
 
-# Loads th e HTML file
+# Loads the HTML file
 with open("../../output/pre_parsed_html/ebay.html", "r", encoding="utf-8") as f:
     doc = html.fromstring(f.read())
 
-# this get all product containers under the search results
-product_divs = doc.xpath('//*[@id="mainContent"]/div[2]/div/div/div/div[@class="app-item" or starts-with(name(), "app-item") or descendant::app-item]')
+# this selects all product <app-item> elements
+products = doc.xpath('//app-item')
 
-if not product_divs:
-    product_divs = doc.xpath('//*[@id="mainContent"]/div[2]/div/div/div/div[contains(@class, "col-lg-") and descendant::div[contains(text(), "$")]]')
+data = []
 
-# this does it for each listing
-for div in product_divs:
-    
-    text = " ".join(div.xpath('.//text()')).strip()
-    text = re.sub(r'\s+', ' ', text)
+for p in products:
+    # Product Name
+    name_el = p.xpath('.//a[contains(@href, "ebay") and normalize-space(text())]')
+    name = name_el[0].text_content().strip() if name_el else "N/A"
 
-    name = re.split(r'Seller:|Price', text)[0].strip()
+    # Product Link
+    link = name_el[0].get('href') if name_el else "N/A"
 
-    price_elements = div.xpath('.//div[contains(@class, "text-align-left") and contains(text(), "$")]/text()')
-    price = price_elements[0].strip() if price_elements else "N/A"
+    # Product Image
+    img_el = p.xpath('.//img[@src]')
+    img = img_el[0].get('src') if img_el else "N/A"
 
-    print(f"Product: {name} | Price: {price}")
+    # Product Price
+    price_el = p.xpath('.//div[contains(@class, "text-align-left") and contains(text(), "$") or contains(text(), "£")]/text()')
+    price = price_el[0].strip() if price_el else "N/A"
+
+    data.append((name, price, link, img))
+    print(f"Product: {name}\nPrice: {price}\nLink: {link}\nImage: {img}\n{'-'*80}")
+
+#Write to CSv
+with open("ebay.csv", "w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    writer.writerow(["Name", "Price", "Link", "Image"])
+    writer.writerows(data)
+
+print("Scraping complete")
