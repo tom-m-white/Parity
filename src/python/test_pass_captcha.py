@@ -30,7 +30,7 @@ def human_get_selenium():
     # options.add_argument("--headless")
     # options.add_argument("--disable-gpu")
     # driver = webdriver.Chrome(options=options)
-    encoded_query = "bike"
+    encoded_query = "bike" #<-- here
     driver.get(f"https://globalesearch.com/search/shoes?sortBy=BestMatch&searchInDescription=false&se=0")
     html = driver.page_source  # full rendered HTML
 
