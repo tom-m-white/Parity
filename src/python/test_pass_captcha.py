@@ -25,8 +25,6 @@ def human_get_selenium(query, website, wait=False):
     #options.add_argument("--enable-javascript")
     prefs = {"profile.default_content_setting_values.notifications": 2}
     options.add_experimental_option("prefs", prefs)
-    driver = webdriver.Chrome(options=options)
-
     # options.add_argument("--headless")
     # options.add_argument("--disable-gpu")
     driver = webdriver.Chrome(options=options)
@@ -86,4 +84,4 @@ def human_get_requests(url, session=None, headers=None, min_delay=1.5, max_delay
 
 # human_get_selenium()
 
-human_get_selenium("Black Nike Shoes", "amazon", wait=True)
+human_get_selenium("Black Nike Shoes", "target", wait=True)
