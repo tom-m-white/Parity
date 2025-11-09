@@ -46,7 +46,7 @@ source venv/bin/activate`   or `venv\Scripts\activate` on Windows
 ### 3. Install dependencies
 `pip install -r requirements.txt`
 
-###4. Run a scraper
+### 4. Run a scraper
 `python3 src/python/gui.py `
 
 ---
