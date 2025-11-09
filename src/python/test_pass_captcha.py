@@ -35,11 +35,13 @@ def human_get_selenium(query, website, wait=False):
     
     if website == "amazon":
         driver.get(f"https://www.amazon.com/s?k={query}")
+        time.sleep(2) # Waiting for website to load
     if website == "ebay":
         driver.get(f"https://globalesearch.com/search/{query}") # se=0 means the search will be for Ebay United States
         time.sleep(5) # Waiting for website to load
     if website == "target":
         driver.get(F"https://www.target.com/s?searchTerm={query}")
+        time.sleep(5) # Waiting for website to load
     
 
     html = driver.page_source  # full rendered HTML
@@ -84,4 +86,4 @@ def human_get_requests(url, session=None, headers=None, min_delay=1.5, max_delay
 
 # human_get_selenium()
 
-human_get_selenium("Black Nike Shoes", "ebay", wait=True)
+human_get_selenium("Black Nike Shoes", "amazon", wait=True)
