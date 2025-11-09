@@ -27,7 +27,7 @@ Created by Tom White and Xavier Barinaga, Gonzaga University
 | Frontend | CustomTinker |
 | Backend | Python (`selenium`, `lxml`, `requests`, `re`) |
 | Automation | Chrome WebDriver with custom human simulation |
-| Data Storage | CSV |
+| Data Storage | CSV, HTML |
 | Deployment | Local (future: Docker + Flask backend) |
 
 ---
