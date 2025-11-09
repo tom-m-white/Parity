@@ -10,13 +10,6 @@ with open("../../output/pre_parsed_html/amazon.html", "r", encoding="utf-8") as 
 #product_divs = doc.xpath('//*[@id="search"]/div[1]/div[1]/div/span[1]/div[1]')
 
 product_divs = doc.xpath('//div[@role="listitem" and @data-asin]')
-print(len(product_divs))
-for div in product_divs:
-    title = div.xpath('.//h2/a/span/text()')
-    price = div.xpath('.//span[@class="a-price-whole"]/text()')
-
-
-
 
 products = []
 
