@@ -6,19 +6,44 @@ import requests
 from io import BytesIO 
 from lxml import html
 import re
+import platform
 
 from scraper import human_get_selenium
 from tooltip import ToolTip
+from scaling import get_scaling_factor
+from title import logo
 
 class ParityApp(ctk.CTk):
     def __init__(self):
         super().__init__()
 
+        #print the logo in console
+        print(logo())
+
         #Window setup
         self.title("Parity")
-        self.geometry("1500x900")
+
+        scaling_factor = get_scaling_factor()
+        print(f"[!] === Detected OS scaling factor: {scaling_factor} ===")
+    
+        if platform.system() == "Windows":
+            ctk.set_window_scaling(scaling_factor)
+
+        #Window dimensions
+        window_width = 1920
+        window_height = 1080
+
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+
+        center_x = int(screen_width / 2 - window_width / 2)
+        center_y = int(screen_height / 2 - window_height / 2)
+
+        self.geometry(f"{window_width}x{window_height}+{center_x}+{center_y}")
+
+        #Apperance
         ctk.set_appearance_mode("dark")
-        ctk.set_default_color_theme("blue")
+        ctk.set_default_color_theme("themes/lavender.json")
 
         #Top Search Frame
         self.search_frame = ctk.CTkFrame(self, corner_radius=0)
@@ -145,7 +170,8 @@ class ParityApp(ctk.CTk):
                 price = price_el[0].strip() if price_el else "N/A"
 
                 data.append((name, price, link, img))
-                print(f"Product: {name}\nPrice: {price}\nLink: {link}\nImage: {img}\n{'-'*80}")
+                # Uncomment out for debugging
+                # print(f"Product: {name}\nPrice: {price}\nLink: {link}\nImage: {img}\n{'-'*80}")
 
             #Write to CSv
             with open("../../output/processed_csv/ebay.csv", "w", newline="", encoding="utf-8") as f:
@@ -153,7 +179,7 @@ class ParityApp(ctk.CTk):
                 writer.writerow(["Name", "Price", "Link", "Image"])
                 writer.writerows(data)
 
-            print("Scraping complete")
+            print("[✓] === Scraping for eBay complete! ===")
         #### AMAZON ####
         if self.search_amazon.get():
             sources_to_search.append("amazon")
@@ -169,7 +195,7 @@ class ParityApp(ctk.CTk):
             products = []
 
             for div in product_divs:
-                # Product link (adding Amazon domain)
+                # Product link
                 link = div.xpath('.//h2/parent::a/@href')
                 link = "https://www.amazon.com" + link[0].split("?")[0] if link else None
 
@@ -201,11 +227,11 @@ class ParityApp(ctk.CTk):
                     "Price": price
                 })
 
-            print(f"Extracted {len(products)} products")
-            print(type(products))
-            print(type(products[0]))
-            for p in products[:10]:  # preview first few
-                print(p)
+            #print(f"Extracted {len(products)} products")
+            #print(type(products))
+            #print(type(products[0]))
+            #for p in products[:10]:  # preview first few
+            #    print(p)
 
             #Write to csv
             with open("../../output/processed_csv/amazon.csv", "w", newline="", encoding="utf-8") as f:
@@ -215,7 +241,7 @@ class ParityApp(ctk.CTk):
                 writer.writeheader()       # writes: name,price,link,image
                 writer.writerows(products)
 
-            print("Scraping complete")
+            print("[✓] === Scraping for Amazon complete! ===")
 
         if self.search_target.get():
             sources_to_search.append("target")
@@ -227,7 +253,7 @@ class ParityApp(ctk.CTk):
             product_divs = doc.xpath('//div[@data-test="@web/site-top-of-funnel/ProductCardWrapper"]')
 
             products = []
-            print(len(product_divs))
+            #print(len(product_divs))
 
 
             for div in product_divs:
@@ -254,9 +280,9 @@ class ParityApp(ctk.CTk):
                     "Image": image
                 })
 
-                print(f"Extracted {len(products)} products.")
-                for p in products[:5]:
-                    print(p)
+                #print(f"Extracted {len(products)} products.")
+                #for p in products[:5]:
+                    #print(p)
 
 
                 with open("../../output/processed_csv/target.csv", "w", newline="", encoding="utf-8") as f:
@@ -264,6 +290,8 @@ class ParityApp(ctk.CTk):
                     writer = csv.DictWriter(f, fieldnames=fieldnames)
                     writer.writeheader()
                     writer.writerows(products)
+                
+            print("[✓] === Scraping for Target complete! ===")
             
 
         # If no boxes were checked, show a message and stop
@@ -277,10 +305,13 @@ class ParityApp(ctk.CTk):
         all_items = []
         if "ebay" in sources_to_search:
             all_items.extend(self.read_and_process_csv('../../output/processed_csv/ebay.csv', 'eBay', limit=5))
+            print("[✓] === Proccessed CSV for eBay complete! ===")
         if "amazon" in sources_to_search:
             all_items.extend(self.read_and_process_csv('../../output/processed_csv/amazon.csv', 'Amazon', limit=5))
+            print("[✓] === Proccessed CSV for Amazon complete! ===")
         if "target" in sources_to_search:
             all_items.extend(self.read_and_process_csv('../../output/processed_csv/target.csv', 'Target', limit=5))
+            print("[✓] === Proccessed CSV for Target complete! ===")
 
 
         # Display the final results
@@ -308,7 +339,7 @@ class ParityApp(ctk.CTk):
             pil_image.thumbnail((120, 120))
             img_data = ctk.CTkImage(light_image=pil_image, dark_image=pil_image, size=(120, 120))
         except Exception as e:
-            print(f"Error processing image {item_data['Image']}: {e}")
+            print(f"[x] === Error processing image {item_data['Image']}: {e} ===")
 
         image_label = ctk.CTkLabel(item_frame, text="", image=img_data)
         image_label.pack(side="left", padx=10, pady=10)
