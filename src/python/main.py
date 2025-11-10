@@ -8,6 +8,7 @@ from lxml import html
 import re
 
 from scraper import human_get_selenium
+from tooltip import ToolTip
 
 class ParityApp(ctk.CTk):
     def __init__(self):
@@ -58,25 +59,28 @@ class ParityApp(ctk.CTk):
         self.search_ebay = ctk.BooleanVar(value=True)
         self.search_amazon = ctk.BooleanVar(value=True)
         self.search_target = ctk.BooleanVar(value=True)
+        self.max_mode = ctk.BooleanVar(value=True)
 
         self.ebay_checkbox = ctk.CTkCheckBox(
             self.checkbox_frame, text="eBay", variable=self.search_ebay,
             onvalue=True, offvalue=False
         )
         self.ebay_checkbox.pack(side="left", padx=10)
+        ToolTip(self.ebay_checkbox, "Click to include eBay in your search.")
 
         self.amazon_checkbox = ctk.CTkCheckBox(
             self.checkbox_frame, text="Amazon", variable=self.search_amazon,
             onvalue=True, offvalue=False
         )
         self.amazon_checkbox.pack(side="left", padx=10)
+        ToolTip(self.amazon_checkbox, "Click to include Amazon in your search.")
 
         self.target_checkbox = ctk.CTkCheckBox(
             self.checkbox_frame, text='Target', variable=self.search_target,
             onvalue=True, offvalue=False
         )
         self.target_checkbox.pack(side="left", padx=10)
-
+        ToolTip(self.target_checkbox, "Click to include Target in your search.")
 
         # Scrollable Frame for Results
         self.results_frame = ctk.CTkScrollableFrame(self, label_text="Search Results")
