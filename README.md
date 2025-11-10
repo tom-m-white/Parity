@@ -1,4 +1,16 @@
-# Parity
+```
+ /$$$$$$$                     /$$   /$$              
+| $$__  $$                   |__/  | $$              
+| $$  \ $$ /$$$$$$   /$$$$$$  /$$ /$$$$$$   /$$   /$$
+| $$$$$$$/|____  $$ /$$__  $$| $$|_  $$_/  | $$  | $$
+| $$____/  /$$$$$$$| $$  \__/| $$  | $$    | $$  | $$
+| $$      /$$__  $$| $$      | $$  | $$ /$$| $$  | $$
+| $$     |  $$$$$$$| $$      | $$  |  $$$$/|  $$$$$$$
+|__/      \_______/|__/      |__/   \___/   \____  $$
+                                            /$$  | $$
+                                           |  $$$$$$/
+                                            \______/
+```
 
 **Parity** is a web app built to streamline price comparison across online marketplaces like eBay and Amazon.  
 It automates search queries, scrapes listings in real time using Selenium and `lxml`, and displays structured product data (including title, price, images, and the link) for quick comparison
