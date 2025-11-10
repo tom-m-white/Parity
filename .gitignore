@@ -51,7 +51,7 @@ htmlcov/
 
 # --- Output or data files ---
 *.csv
-*.json
+#*.json
 *.db
 *.sqlite
 *.pkl
