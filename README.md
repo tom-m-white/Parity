@@ -47,7 +47,7 @@ source venv/bin/activate`   or `venv\Scripts\activate` on Windows
 `pip install -r requirements.txt`
 
 ### 4. Run a scraper
-`python3 src/python/gui.py `
+`python3 src/python/main.py `
 
 ---
 
