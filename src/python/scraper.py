@@ -33,7 +33,7 @@ def human_get_selenium(query, website, wait=False, headless=False):
     
     if website == "amazon":
         driver.get(f"https://www.amazon.com/s?k={query}")
-        time.sleep(3) # Waiting for website to load
+        time.sleep(2) # Waiting for website to load
     if website == "ebay":
         driver.get(f"https://globalesearch.com/search/{query}") # se=0 means the search will be for Ebay United States
         time.sleep(3) # Waiting for website to load

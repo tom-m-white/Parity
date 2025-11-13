@@ -7,11 +7,72 @@ from io import BytesIO
 from lxml import html
 import re
 import platform
+import os
+import threading
 
 from scraper import human_get_selenium
 from tooltip import ToolTip
 from scaling import get_scaling_factor
 from title import logo
+
+# Constants for update checking
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+CURRENT_VERSION = "0.2.0"
+VERSION_FILE = os.path.join(SCRIPT_DIR,"../../version_info.txt") # This hosts the verison file. we use this because we need to keep track if the user has seen the
+                                        # update log. If the helper function checks this and it is older than the verision than it will show
+                                        # the pop up box. If the users opens app and it is the same verision as in verision_info.txt then
+                                        # there will be no pop up.
+# The content for the patch notes. I might put this in a seperate file later on because its a lot of space lol.
+PATCH_NOTES_CONTENT = f"""
+New Features
+- Implemented a new, stylish pop-up window for patch notes to keep you informed of updates.
+- Hyper Threaded! The scraper now runs on a seperate thread!
+- New loading animation.
+
+Improvements
+- Improved UI scaling detection for a crisper look on high-DPI displays.
+- Optimized the Amazon scraper for faster result processing. (33% faster!)
+- The UI now has a nice new look and color!
+
+Bug Fixes
+- Target store is now properly shown in red.
+"""
+
+class PatchNotesWindow(ctk.CTkToplevel):
+    def __init__(self, master, version, notes):
+        super().__init__(master)
+
+        self.title(f"What's New in Parity v{version}")
+        self.geometry("600x450")
+        self.resizable(False, False)
+
+        # Make the window modal (blocks interaction with the main window)
+        self.transient(master)
+        self.after(20, self.grab_set) 
+
+        # Main frame
+        main_frame = ctk.CTkFrame(self, fg_color="transparent")
+        main_frame.pack(expand=True, fill="both", padx=20, pady=20)
+
+        # Title Label
+        title_label = ctk.CTkLabel(main_frame, text=f"Parity Version {version}", font=("Segoe UI", 24, "bold"))
+        title_label.pack(pady=(0, 10))
+
+        # Subtitle
+        subtitle_label = ctk.CTkLabel(main_frame, text="Here are the latest updates and improvements:", font=("Segoe UI", 12), text_color="gray70")
+        subtitle_label.pack(pady=(0, 20))
+
+        # Scrollable frame for the patch notes content
+        scroll_frame = ctk.CTkScrollableFrame(main_frame, label_text="Update Details")
+        scroll_frame.pack(expand=True, fill="both")
+        
+        # Notes Label (inside the scrollable frame)
+        notes_label = ctk.CTkLabel(scroll_frame, text=notes, font=("Segoe UI", 13), justify="left", wraplength=500)
+        notes_label.pack(padx=15, pady=10, anchor="w")
+
+        # This is the close button
+        close_button = ctk.CTkButton(main_frame, text="Got it!", command=self.destroy, height=40, corner_radius=10)
+        close_button.pack(pady=(20, 0), fill="x")
 
 class ParityApp(ctk.CTk):
     def __init__(self):
@@ -109,7 +170,56 @@ class ParityApp(ctk.CTk):
 
         # Scrollable Frame for Results
         self.results_frame = ctk.CTkScrollableFrame(self, label_text="Search Results")
-        self.results_frame.pack(expand=True, fill="both", padx=20, pady=(0, 20))
+        self.results_frame.pack(expand=True, fill="both", padx=20, pady=(0, 10))
+
+        # statsbar for update patch notes #############
+        self.status_bar_frame = ctk.CTkFrame(self, corner_radius=8, height=40)
+        self.status_bar_frame.pack(side="bottom", fill="x", padx=20, pady=(0, 10))
+        self.status_bar_frame.pack_propagate(False)
+
+        self.version_label = ctk.CTkLabel(
+            self.status_bar_frame, text=f"Version: {CURRENT_VERSION}",
+            font=("Segoe UI", 12), text_color="gray70"
+        )
+        self.version_label.pack(side="left", padx=15)
+
+        self.patch_notes_button = ctk.CTkButton(
+            self.status_bar_frame, text="What's New?", 
+            command=self.show_patch_notes, 
+            width=120, height=30, 
+            corner_radius=8
+        )
+        self.patch_notes_button.pack(side="right", padx=15)
+        ToolTip(self.patch_notes_button, "Click to see the latest updates.")
+
+        self.after(200, self.check_for_updates)
+
+        ####################################################
+
+        # for hyperthreading
+        self.scraping_thread = None
+        self.scraping_results = []
+    
+    def show_patch_notes(self):
+        # All this does is Check if a window is already open to prevent duplicates
+        if not hasattr(self, 'patch_window') or not self.patch_window.winfo_exists():
+            self.patch_window = PatchNotesWindow(self, CURRENT_VERSION, PATCH_NOTES_CONTENT)
+        self.patch_window.focus()
+
+    def check_for_updates(self):
+        try:
+            with open(VERSION_FILE, 'r') as f:
+                last_seen_version = f.read().strip()
+        except FileNotFoundError:
+            last_seen_version = "0.0.0"
+
+        if last_seen_version < CURRENT_VERSION:
+            print(f"[!] === New version detected! Showing patch notes for v{CURRENT_VERSION}. === ")
+            self.show_patch_notes()
+            with open(VERSION_FILE, 'w') as f:
+                f.write(CURRENT_VERSION)
+        else:
+            print("[✓] === Parity is up to date. === ")
 
     def read_and_process_csv(self, filepath, source_name, limit=5):
         items = []
@@ -131,19 +241,54 @@ class ParityApp(ctk.CTk):
         query_text = self.query.get().strip()
         if not query_text:
             return
+
+        if self.scraping_thread and self.scraping_thread.is_alive():
+            print("[!] === A search is already in progress. Please wait. ===")
+            return
         
         # Clear previous results and show a loading message
         for widget in self.results_frame.winfo_children():
             widget.destroy()
-        loading_label = ctk.CTkLabel(self.results_frame, text="Searching and scraping, please wait...", font=("Segoe UI", 14))
-        loading_label.pack(pady=20)
-        self.update_idletasks() # Force GUI to update to show the message
 
-        # Check which boxes are ticked and run the scrapers
+        ##### animations
+        self.loading_frame = ctk.CTkFrame(self.results_frame, fg_color="transparent")
+        self.loading_frame.pack(expand=True)
+
+        loading_label = ctk.CTkLabel(self.loading_frame, text="Searching and scraping, please wait...", font=("Segoe UI", 14))
+        loading_label.pack(pady=(0, 10))
+
+        progress_bar = ctk.CTkProgressBar(self.loading_frame, mode='indeterminate', width=300)
+        progress_bar.pack(pady=10)
+        progress_bar.start()
+
+        self.search_button.configure(state="disabled")
+        #######
+
         sources_to_search = []
+        if self.search_ebay.get(): sources_to_search.append("ebay")
+        if self.search_amazon.get(): sources_to_search.append("amazon")
+        if self.search_target.get(): sources_to_search.append("target")
+
+        # This starts the worker threads
+        self.scraping_thread = threading.Thread(
+            target=self._perform_scraping_work,
+           args=(query_text, sources_to_search)
+        )
+        self.scraping_thread.start()
+
+        self.after(100, self._check_scraping_thread)
+
+    def _perform_scraping_work(self, query_text, sources_to_search):
+        """
+        This function runs in a separate thread.
+        """
+        
+        if not sources_to_search:
+            self.scraping_results = "NO_SELECTION"
+            return
+
         #### EBAY ####
-        if self.search_ebay.get():
-            sources_to_search.append("ebay")
+        if "ebay" in sources_to_search:
             human_get_selenium(query_text, "ebay", headless=True)
             with open("../../output/pre_parsed_html/ebay.html", "r", encoding="utf-8") as f:
                 doc = html.fromstring(f.read())
@@ -180,9 +325,9 @@ class ParityApp(ctk.CTk):
                 writer.writerows(data)
 
             print("[✓] === Scraping for eBay complete! ===")
+
         #### AMAZON ####
-        if self.search_amazon.get():
-            sources_to_search.append("amazon")
+        if "amazon" in sources_to_search:
             human_get_selenium(query_text, "amazon", False)
             # Loads th e HTML file
             with open("../../output/pre_parsed_html/amazon.html", "r", encoding="utf-8") as f:
@@ -242,9 +387,8 @@ class ParityApp(ctk.CTk):
                 writer.writerows(products)
 
             print("[✓] === Scraping for Amazon complete! ===")
-
-        if self.search_target.get():
-            sources_to_search.append("target")
+        
+        if "target" in sources_to_search:
             human_get_selenium(query_text, "target", headless=True)
             # Loads th e HTML file
             with open("../../output/pre_parsed_html/target.html", "r", encoding="utf-8") as f:
@@ -292,15 +436,6 @@ class ParityApp(ctk.CTk):
                     writer.writerows(products)
                 
             print("[✓] === Scraping for Target complete! ===")
-            
-
-        # If no boxes were checked, show a message and stop
-        if not sources_to_search:
-            loading_label.destroy() # Remove the loading message
-            no_selection_label = ctk.CTkLabel(self.results_frame, text="Please select at least one source (eBay or Amazon or Target) to search.", text_color="orange")
-            no_selection_label.pack(pady=20)
-            return
-
         # Read data from the corresponding CSVs
         all_items = []
         if "ebay" in sources_to_search:
@@ -313,10 +448,25 @@ class ParityApp(ctk.CTk):
             all_items.extend(self.read_and_process_csv('../../output/processed_csv/target.csv', 'Target', limit=5))
             print("[✓] === Proccessed CSV for Target complete! ===")
 
+            self.scraping_results = all_items
 
-        # Display the final results
-        loading_label.destroy()
-        self.display_results(all_items)
+    def _check_scraping_thread(self):
+        """
+        This function runs on the main GUI thread to check
+        if the worker thread is finished.
+        """
+        if self.scraping_thread.is_alive():
+            self.after(100, self._check_scraping_thread)
+        else:
+            print("[✓] === Thread finished, updating GUI. ===")
+            self.loading_frame.destroy()
+            self.search_button.configure(state="normal")
+
+            if self.scraping_results == "NO_SELECTION":
+                no_selection_label = ctk.CTkLabel(self.results_frame, text="Please select at least one source (eBay or Amazon or Target) to search.", text_color="orange")
+                no_selection_label.pack(pady=20)
+            else:
+                self.display_results(self.scraping_results)
 
     def display_results(self, items_list):
         if not items_list:
