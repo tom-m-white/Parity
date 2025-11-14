@@ -17,7 +17,7 @@ from title import logo
 
 # Constants for update checking
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-CURRENT_VERSION = "0.2.1"
+CURRENT_VERSION = "0.2.2"
 VERSION_FILE = os.path.join(SCRIPT_DIR,"../../version_info.txt") # This hosts the verison file. we use this because we need to keep track if the user has seen the
                                         # update log. If the helper function checks this and it is older than the verision than it will show
                                         # the pop up box. If the users opens app and it is the same verision as in verision_info.txt then
@@ -33,6 +33,7 @@ Improvements
 - Improved UI scaling detection for a crisper look on high-DPI displays.
 - Optimized the Amazon scraper for faster result processing. (33% faster!)
 - The UI now has a nice new look and color
+- Changed Scaling
 
 Bug Fixes
 - Target store is now properly shown in red.
@@ -88,8 +89,8 @@ class ParityApp(ctk.CTk):
         scaling_factor = get_scaling_factor()
         print(f"[!] === Detected OS scaling factor: {scaling_factor} ===")
     
-        if platform.system() == "Windows":
-            ctk.set_window_scaling(scaling_factor)
+        ctk.set_widget_scaling(scaling_factor + .25)
+        ctk.set_window_scaling(scaling_factor + .25)
 
         #Window dimensions
         window_width = 1920
