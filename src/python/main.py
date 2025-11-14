@@ -17,7 +17,7 @@ from title import logo
 
 # Constants for update checking
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-CURRENT_VERSION = "0.2.0"
+CURRENT_VERSION = "0.2.1"
 VERSION_FILE = os.path.join(SCRIPT_DIR,"../../version_info.txt") # This hosts the verison file. we use this because we need to keep track if the user has seen the
                                         # update log. If the helper function checks this and it is older than the verision than it will show
                                         # the pop up box. If the users opens app and it is the same verision as in verision_info.txt then
@@ -32,10 +32,11 @@ New Features
 Improvements
 - Improved UI scaling detection for a crisper look on high-DPI displays.
 - Optimized the Amazon scraper for faster result processing. (33% faster!)
-- The UI now has a nice new look and color!
+- The UI now has a nice new look and color
 
 Bug Fixes
 - Target store is now properly shown in red.
+- Fixed file management
 """
 
 class PatchNotesWindow(ctk.CTkToplevel):
@@ -60,7 +61,7 @@ class PatchNotesWindow(ctk.CTkToplevel):
 
         # Subtitle
         subtitle_label = ctk.CTkLabel(main_frame, text="Here are the latest updates and improvements:", font=("Segoe UI", 12), text_color="gray70")
-        subtitle_label.pack(pady=(0, 20))
+        subtitle_label.pack(pady=(0, 5))
 
         # Scrollable frame for the patch notes content
         scroll_frame = ctk.CTkScrollableFrame(main_frame, label_text="Update Details")
@@ -290,7 +291,7 @@ class ParityApp(ctk.CTk):
         #### EBAY ####
         if "ebay" in sources_to_search:
             human_get_selenium(query_text, "ebay", headless=True)
-            with open("../../output/pre_parsed_html/ebay.html", "r", encoding="utf-8") as f:
+            with open("output/pre_parsed_html/ebay.html", "r", encoding="utf-8") as f:
                 doc = html.fromstring(f.read())
 
             # this selects all product <app-item> elements
@@ -319,7 +320,7 @@ class ParityApp(ctk.CTk):
                 # print(f"Product: {name}\nPrice: {price}\nLink: {link}\nImage: {img}\n{'-'*80}")
 
             #Write to CSv
-            with open("../../output/processed_csv/ebay.csv", "w", newline="", encoding="utf-8") as f:
+            with open("output/processed_csv/ebay.csv", "w", newline="", encoding="utf-8") as f:
                 writer = csv.writer(f)
                 writer.writerow(["Name", "Price", "Link", "Image"])
                 writer.writerows(data)
@@ -330,7 +331,7 @@ class ParityApp(ctk.CTk):
         if "amazon" in sources_to_search:
             human_get_selenium(query_text, "amazon", False)
             # Loads th e HTML file
-            with open("../../output/pre_parsed_html/amazon.html", "r", encoding="utf-8") as f:
+            with open("output/pre_parsed_html/amazon.html", "r", encoding="utf-8") as f:
                 doc = html.fromstring(f.read())
 
             # this get all product containers under the search results
@@ -379,7 +380,7 @@ class ParityApp(ctk.CTk):
             #    print(p)
 
             #Write to csv
-            with open("../../output/processed_csv/amazon.csv", "w", newline="", encoding="utf-8") as f:
+            with open("output/processed_csv/amazon.csv", "w", newline="", encoding="utf-8") as f:
                 fieldnames = ["Name", "Price", "Link", "Image"]
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
 
@@ -391,7 +392,7 @@ class ParityApp(ctk.CTk):
         if "target" in sources_to_search:
             human_get_selenium(query_text, "target", headless=True)
             # Loads th e HTML file
-            with open("../../output/pre_parsed_html/target.html", "r", encoding="utf-8") as f:
+            with open("output/pre_parsed_html/target.html", "r", encoding="utf-8") as f:
                 doc = html.fromstring(f.read())
 
             product_divs = doc.xpath('//div[@data-test="@web/site-top-of-funnel/ProductCardWrapper"]')
@@ -429,7 +430,7 @@ class ParityApp(ctk.CTk):
                     #print(p)
 
 
-                with open("../../output/processed_csv/target.csv", "w", newline="", encoding="utf-8") as f:
+                with open("output/processed_csv/target.csv", "w", newline="", encoding="utf-8") as f:
                     fieldnames = ["Name", "Price", "Link", "Image"]
                     writer = csv.DictWriter(f, fieldnames=fieldnames)
                     writer.writeheader()
@@ -439,13 +440,13 @@ class ParityApp(ctk.CTk):
         # Read data from the corresponding CSVs
         all_items = []
         if "ebay" in sources_to_search:
-            all_items.extend(self.read_and_process_csv('../../output/processed_csv/ebay.csv', 'eBay', limit=5))
+            all_items.extend(self.read_and_process_csv('output/processed_csv/ebay.csv', 'eBay', limit=5))
             print("[✓] === Proccessed CSV for eBay complete! ===")
         if "amazon" in sources_to_search:
-            all_items.extend(self.read_and_process_csv('../../output/processed_csv/amazon.csv', 'Amazon', limit=5))
+            all_items.extend(self.read_and_process_csv('output/processed_csv/amazon.csv', 'Amazon', limit=5))
             print("[✓] === Proccessed CSV for Amazon complete! ===")
         if "target" in sources_to_search:
-            all_items.extend(self.read_and_process_csv('../../output/processed_csv/target.csv', 'Target', limit=5))
+            all_items.extend(self.read_and_process_csv('output/processed_csv/target.csv', 'Target', limit=5))
             print("[✓] === Proccessed CSV for Target complete! ===")
 
             self.scraping_results = all_items

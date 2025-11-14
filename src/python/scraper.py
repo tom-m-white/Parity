@@ -1,5 +1,6 @@
 import requests, random, time
 from bs4 import BeautifulSoup
+from pathlib import Path
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -47,7 +48,7 @@ def human_get_selenium(query, website, wait=False, headless=False):
     soup = BeautifulSoup(html, "html.parser")
     pretty_html = soup.prettify()
 
-    with open(f"../../output/pre_parsed_html/{website}.html", "w", encoding="utf-8") as f:
+    with open(f"output/pre_parsed_html/{website}.html", "w", encoding="utf-8") as f:
         f.write(pretty_html)
 
     driver.quit()
