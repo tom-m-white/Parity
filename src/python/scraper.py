@@ -24,8 +24,7 @@ def human_get_selenium(query, website, wait=False, headless=False):
     #options.add_argument("--enable-javascript")
     prefs = {"profile.default_content_setting_values.notifications": 2}
     options.add_experimental_option("prefs", prefs)
-    if headless:
-        options.add_argument("--headless")
+    options.add_argument("--headless")
     # options.add_argument("--disable-gpu")
     driver = webdriver.Chrome(options=options)
     driver.set_window_size(500,1000)
